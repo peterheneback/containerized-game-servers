@@ -46,8 +46,7 @@ export CLUSTER_NAME=stk-usw-2
 ```
 
 
-3/ Create a GitHub classic token from GitHub site -> Settings->Developer settings -> Personal access tokens -> Fine grained tokens
-TODO Permissions
+3/ Create a GitHub classic token in your personal GitHub account where you forked this repo. The token can be generated from *GitHub -> Settings->Developer settings -> Personal access tokens -> Fine grained tokens*. Generate the token with the minimum period required and permissions to read only the required data and metadata in the repository.
 
 4/ Create a secret in the AWS Secrets Manager. Make sure to replace `<MY-GITHUB-TOKEN>` with the actual token value.
 
