@@ -12,9 +12,9 @@
 ### Manual image build steps
 Below is the sequence of manual execution steps for building a game docker image that runs on ARM64 and AMD64 CPU arch.We also offer automation with CodePipeline and CodeBuild in the next section
 
-0/ Fork this repo to use it as source with `codepipeline_actions.GitHubSourceAction`
+1/ Fork this repo to use it as source with `codepipeline_actions.GitHubSourceAction`
 
-1/ Populate the following enviroment variables. 
+2/ Populate the following enviroment variables. 
 
 ```bash
 export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --output text --query Account)
@@ -45,9 +45,17 @@ export GITHUB_REPO=containerized-game-servers
 export CLUSTER_NAME=stk-usw-2
 ```
 
-Create a secret in the AWS Secrets Manager. Store New Secret -> Other type of secret -> Key to token and value to be the GitHub classic token - Settings->Developer settings -> Tokens (classic). The name of the secret should be `githubtoken`
 
-2/ Build the base image
+3/ Create a GitHub classic token from GitHub site -> Settings->Developer settings -> Personal access tokens -> Fine grained tokens
+TODO Permissions
+
+4/ Create a secret in the AWS Secrets Manager. Make sure to replace `<MY-GITHUB-TOKEN>` with the actual token value.
+
+```bash
+aws secretsmanager create-secret --name githubtoken --description "GitHub token for containerised game server deployment" --secret-string "<MY-GITHUB-TOKEN>"
+```
+
+5/ Build the base image
 
 This is the image that includes the generic tools and libraries needed for the game. We used CPU architecture agnostic packages to allow dynamic compile and linkage to local architecture. The persona that most interested in this build is the IT/Devops that optimizes for stability and security
 
@@ -56,7 +64,7 @@ cd ./server/base-image-multiarch-python3
 ./buildx.sh
 ```
 
-3/ Link the game assets 
+6/ Link the game assets 
 
 This is the game images, video, and audio files. The persona that owns this step is the game artist. The media files (audio, images, and videos) can be stored on storage solutions such as SVN and S3. The original location for STK is https://github.com/supertuxkart/stk-assets-mobile/releases/download/git/stk-assets-full.zip but we copied it to S3 and broke it into 256MB pieces to allow optimized Docker layer cache.
 
@@ -65,7 +73,7 @@ cd ./server/stk-assets-image-multiarch
 ./buildx.sh
 ```
 
-4/ Build the game binaries
+7/ Build the game binaries
 
 Build the game executables. The persona that owns this is the game developer.
 
@@ -74,7 +82,7 @@ cd ./server/stk-code-image-multiarch
 ./buildx.sh
 ```
 
-5/ Build the deployable game image
+8/ Build the deployable game image
 
 This is the game governance piece. It includes the scripts the controls the game lifecycle and the game ecosystem like matchmaking, leaderboard, and messaging applications. The persona that owns this step is the game live/devops team that operates the game.
 
